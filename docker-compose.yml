@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+    www:
+        build: www
+        ports:
+            - 8080:3000
+        stdin_open: true
+        volumes:
+            - ./www:/usr/src/app
+            - /usr/src/app/node_modules
+        container_name: www
+        restart: always
+        networks:
+            - react-express
+        depends_on:
+            - api
+
+    api:
+        container_name: api
+        restart: always
+        build: api
+        volumes:
+            - ./api:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - mongo
+        networks:
+            - express-mongo
+            - react-express
+
+    mongo:
+        container_name: mongo
+        restart: always
+        image: mongo
+        volumes:
+            - ./data:/data/db
+        networks:
+            - express-mongo
+networks:
+    react-express:
+    express-mongo:

@@ -33,7 +33,7 @@ function App() {
 
   useEffect(() => {
     getAllTodos();
-  }, []);
+  }, [todo]);
 
   //** Edit task 
   useEffect(() => {
@@ -64,18 +64,19 @@ function App() {
       createTasks(todo);
       setTodo("");
     } else {
-      editTask(todo, taskEditing.id);
-      console.log("123");
+      editTask(todo, taskEditing._id);
     }
   };
 
   // Edit task
   const editTask = (todo, id) => {
-    const updatedTasks = todos.map(task => (task._id === id ? { text: todo.text, _id: id } : task));
-    setTodos(updatedTasks);
-    console.log(todo);
+    const updatedTodo = { text: todo, _id: id };
+    setTodo(updatedTodo);
 
-    axios.post(`http://localhost:5000/todos/update/${id}`, { id: id })
+    const updatedTasks = todos.map(task => (task._id === id ? { text: todo.text, id: id } : task));
+    setTodos(updatedTasks);
+
+    axios.post(`http://localhost:5000/todos/update/${id}`, updatedTodo)
       .then(res => console.log(res.data))
       .catch(err => console.log(err));
 
@@ -87,7 +88,7 @@ function App() {
     const updatedTodos = todos.filter((todo) => todo._id !== id);
     setTodos(updatedTodos);
 
-    axios.delete(`http://localhost:5000/todos/${id}`, { id: id })
+    axios.delete(`http://localhost:5000/todos/${id}`)
       .then(res => console.log(res.data))
       .catch(err => console.log(err));
   };
@@ -100,6 +101,7 @@ function App() {
 
   //** Toggle Complete
   const updateTodo = (id) => {
+    const item = todos.find(task => task._id === id);
     const updatedTasks = [...todos].map((task) => {
       if (task._id === id) {
         task.completed = !task.completed;
@@ -108,7 +110,7 @@ function App() {
     });
     setTodos(updatedTasks);
 
-    axios.post(`http://localhost:5000/todos/update/${id}`, { id: id })
+    axios.post(`http://localhost:5000/todos/update/${id}`, item)
       .then(res => console.log(res.data))
       .catch(err => console.log(err));
   };
@@ -123,7 +125,6 @@ function App() {
             <input
               type="text"
               value={todo}
-              // onChange={({ target }) => setTodo(target.value)}
               onChange={(e) => setTodo(e.target.value)}
               placeholder="Enter your todo ..."
               required
